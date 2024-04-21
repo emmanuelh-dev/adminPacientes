@@ -22,7 +22,7 @@
 <script setup>
 import Header from './components/Header.vue'
 import Formulario from './components/Formulario.vue'
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
 import Pacient from './components/Pacient.vue';
 
 const pacients = ref([]);
@@ -38,7 +38,19 @@ const pacient = reactive({
 
 
 onMounted(() => {
+  const pacientsLocal = localStorage.getItem('pacients');
+  if (pacientsLocal) {
+    pacients.value = JSON.parse(pacientsLocal);
+  }
 })
+
+watch(pacients, (newPacients, oldPacients) => {
+  localStorage.setItem('pacients', JSON.stringify(newPacients));
+})
+
+const saveToLocalstorage = () => {
+  localStorage.setItem('pacients', JSON.stringify(pacients.value));
+}
 
 function resetForm() {
   pacient.id = '';
@@ -76,7 +88,7 @@ const savePatient = () => {
     const index = pacients.value.findIndex(p => p.id === pacient.id);
     pacients.value[index] = { ...pacient };
   }
-
+  saveToLocalstorage();
   resetForm();
 }
 
